@@ -10,7 +10,7 @@ app = ctk.CTk()
 app.geometry("720x480")
 app.title("Calculator")
 
-frame = ctk.CTkFrame(app,width=app.winfo_width(),height=app.winfo_height(),bg_color="white")
+frame = ctk.CTkFrame(app,width=300,height=300,bg_color="white")
 frame.pack(padx=10,pady=50)
 print(app.winfo_height())
 
