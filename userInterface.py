@@ -11,6 +11,8 @@ class App(ctk.CTk):
         self.geometry("720x480")
         ctk.set_appearance_mode("dark")
 
+        self.frame_list = []
+
         #set grid layout 1x2
         self.grid_rowconfigure(0,weight=1)
         self.grid_columnconfigure(1,weight=1)
@@ -42,8 +44,8 @@ class App(ctk.CTk):
         self.systemth_button.configure(width=self.navigation_frame_width)
 
         #Matrix Frame
-        self.matrix_multipl_frame = Matrix_multipl_Frame(self)
-        self.matrix_multipl_frame.grid(row=0,column=1,sticky="nsew")
+        self.matrix_frame = Matrix_Frame(master = self)
+        self.matrix_frame.grid(row=0,column=1,sticky="nsew")
 
 
         self.select_frame_by_name("matrix")#bearbeiten
@@ -58,13 +60,30 @@ class App(ctk.CTk):
     def systemth_button_event(self):
         self.select_frame_by_name("systemth")
 
-class Matrix_multipl_Frame(ctk.CTkFrame):
-    def __init__(self,master, **kwargs):
-        super().__init__(master, **kwargs)
-
-        self.master = master
-        self._corner_radius = 0
+class Matrix_Frame(ctk.CTkFrame):
+    def __init__(self,master):
+        super().__init__(master)    
         self.configure( fg_color = "transparent" )
+        self.master = master
+
+        self.dim_m1 = ()
+        self.dim_m2 = ()
+
+        self.matrix_dimension_Frame = Matrix_dimension_Frame(self)
+        self.matrix_dimension_Frame.grid(row=0,column=0, sticky = "nsew")
+
+    
+    def select_input_frame(self,dim_m1, dim_m2):
+        self.matrix_input_Frame = Matrix_input_Frame(self, dim_m1, dim_m2)
+        self.matrix_dimension_Frame.grid_forget()
+        self.matrix_input_Frame.grid(row=0, column=0, sticky="nsew")
+
+class Matrix_dimension_Frame(ctk.CTkFrame):
+    def __init__(self,master):
+        super().__init__(master)
+        self.master = master
+        
+        self.configure( fg_color = "transparent")
 
         self.row1=""
         self.column1=""
@@ -81,7 +100,25 @@ class Matrix_multipl_Frame(ctk.CTkFrame):
         self.matrix2_rows.grid(row=1,column=0 , padx = 20 , pady = 20, sticky = "wn")
         self.matrix2_columns.grid(row=1,column=1 , padx = 20 , pady = 20, sticky = "wn")
 
+        self.select_button = ctk.CTkButton(master = self, height = 30, fg_color = "transparent", text= "Select Dim",hover_color=("gray70","gray30"), command=self.select_input_Frame)
+        self.select_button.grid(row=2, column=0, columnspan=2, sticky="nsew")
+    def select_input_Frame(self):
+        dim_m1 = (self.matrix1_rows.get(), self.matrix1_columns.get())
+        dim_m2 = (self.matrix2_rows.get(), self.matrix2_columns.get())
+        self.master.select_input_frame(dim_m1, dim_m2)
 
+    
+class Matrix_input_Frame(ctk.CTkFrame):
+    def __init__(self,master, dim_m1, dim_m2):
+        super().__init__(master)
+        self.configure( fg_color = "transparent")
+        self.master = master
+        self.dim_m1 = dim_m1
+        self.dim_m2 = dim_m2
+
+        print(dim_m1)
+        print(dim_m2)
+        
     def create_matrix_input(self,rows_input, columns_input, frame):
         try:
             rows = int(rows_input)
@@ -98,4 +135,13 @@ class Matrix_multipl_Frame(ctk.CTkFrame):
                 row_entries.append(entry)
             matrix_input.append(row_entries)
         return matrix_input
+    
+def main():
+    app = App()
+
+    
+    app.mainloop()
+
+if __name__ == "__main__":
+    main()
     
