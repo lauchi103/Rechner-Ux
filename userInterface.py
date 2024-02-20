@@ -25,7 +25,7 @@ class App(ctk.CTk):
         #sidebar frame
         self.navigation_frame = ctk.CTkFrame(master=self,corner_radius=0)
         self.navigation_frame.grid(row=0,column=0,sticky="nsew")
-        self.navigation_frame.rowconfigure(4,weight=1)
+        self.navigation_frame.grid_rowconfigure(4,weight=1)
         self.navigation_frame_width = self.navigation_frame.cget("width")
         
         self.navigation_frame_label = ctk.CTkLabel(master=self.navigation_frame,text="Sidebar",height=40,corner_radius=0,anchor="w")
@@ -71,6 +71,8 @@ class Matrix_Frame(ctk.CTkFrame):
 
         self.matrix_dimension_Frame = Matrix_dimension_Frame(self)
         self.matrix_dimension_Frame.grid(row=0,column=0, sticky = "nsew")
+        self.grid_rowconfigure(0,weight=1)
+        self.grid_columnconfigure(0,weight=1)
 
     
     def select_input_frame(self,dim_m1, dim_m2):
@@ -103,8 +105,8 @@ class Matrix_dimension_Frame(ctk.CTkFrame):
         self.select_button = ctk.CTkButton(master = self, height = 30, fg_color = "transparent", text= "Select Dim",hover_color=("gray70","gray30"), command=self.select_input_Frame)
         self.select_button.grid(row=2, column=0, columnspan=2, sticky="nsew")
     def select_input_Frame(self):
-        dim_m1 = (self.matrix1_rows.get(), self.matrix1_columns.get())
-        dim_m2 = (self.matrix2_rows.get(), self.matrix2_columns.get())
+        dim_m1 = (int(self.matrix1_rows.get()),int( self.matrix1_columns.get()))
+        dim_m2 = (int(self.matrix2_rows.get()), int(self.matrix2_columns.get()))
         self.master.select_input_frame(dim_m1, dim_m2)
 
     
@@ -115,14 +117,20 @@ class Matrix_input_Frame(ctk.CTkFrame):
         self.master = master
         self.dim_m1 = dim_m1
         self.dim_m2 = dim_m2
+        self.grid_rowconfigure(3,weight=1)
+        self.grid_columnconfigure(2,weight=1)
 
-        print(dim_m1)
-        print(dim_m2)
+        self.m1_entry = self.create_matrix_input(dim_m1)
+        self.label = ctk.CTkLabel(self,text="x", font=("Arial CE",20), anchor="n")
+        self.label.grid(row=dim_m1[0]//2, column=dim_m1[1] +1)
+        self.m2_entry = self.create_matrix_input(dim_m2,self.dim_m1[1]+2)
         
-    def create_matrix_input(self,rows_input, columns_input, frame):
+        
+        
+    def create_matrix_input(self,dim_input,x_offset=0):
         try:
-            rows = int(rows_input)
-            columns = int(columns_input)
+            rows = int(dim_input[0])
+            columns = int(dim_input[1])
         except ValueError:
             #show Error!
             return
@@ -130,8 +138,8 @@ class Matrix_input_Frame(ctk.CTkFrame):
         for i in range(rows):
             row_entries = []
             for j in range(columns):
-                entry = ctk.CTkEntry(frame, width=5)
-                entry.grid(row=i,column=j)
+                entry = ctk.CTkEntry(self, width=20)
+                entry.grid(row=i,column=j+x_offset, sticky = "nsew")
                 row_entries.append(entry)
             matrix_input.append(row_entries)
         return matrix_input
