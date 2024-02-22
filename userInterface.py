@@ -28,7 +28,7 @@ class App(ctk.CTk):
         self.navigation_frame.grid_rowconfigure(4,weight=1)
         self.navigation_frame_width = self.navigation_frame.cget("width")
         
-        self.navigation_frame_label = ctk.CTkLabel(master=self.navigation_frame,text="Sidebar",height=40,corner_radius=0,anchor="w")
+        self.navigation_frame_label = ctk.CTkLabel(master=self.navigation_frame,text="Sidebar",height=40,corner_radius=0)
         self.navigation_frame_label.grid(row=0,column=0,padx=20,pady=20)
 
         self.matrix_multipl_button = ctk.CTkButton(master=self.navigation_frame,corner_radius=0,height=40,border_spacing=10,
@@ -117,17 +117,35 @@ class Matrix_input_Frame(ctk.CTkFrame):
         self.master = master
         self.dim_m1 = dim_m1
         self.dim_m2 = dim_m2
-        self.grid_rowconfigure(3,weight=1)
-        self.grid_columnconfigure(2,weight=1)
+        self.grid_rowconfigure(0,weight=5)
+        self.grid_columnconfigure(0,weight=4)
+        self.grid_columnconfigure(2,weight=4)
+        self.grid_columnconfigure(1,weight=1)
+        self.grid_rowconfigure(1,weight=1)
 
-        self.m1_entry = self.create_matrix_input(dim_m1)
-        self.label = ctk.CTkLabel(self,text="x", font=("Arial CE",20), anchor="n")
-        self.label.grid(row=dim_m1[0]//2, column=dim_m1[1] +1)
-        self.m2_entry = self.create_matrix_input(dim_m2,self.dim_m1[1]+2)
+        self.m1_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.m1_frame.grid_rowconfigure(0,weight=1)
+        self.m1_frame.grid_columnconfigure(0,weight=1)
+        self.m1_frame.grid(row=0, column=0, sticky="nsew")
+        self.m2_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.m2_frame.grid_rowconfigure(0,weight=1)
+        self.m2_frame.grid_columnconfigure(0,weight=1)
+        self.m2_frame.grid(row=0, column=2, sticky="nsew")
+
+        self.m1_entry = self.create_matrix_input(self.m1_frame ,dim_m1)
+        self.label = ctk.CTkLabel(self,text="x", font=("Arial CE",20), fg_color="transparent")
+        self.label.grid(row=0, column=1, sticky="nsew")
+        self.m2_entry = self.create_matrix_input(self.m2_frame, dim_m2)
+
+        self.m1_frame.configure(width = self.master.cget("width")//9 * 4)
+        self.m2_frame.configure(width = self.master.cget("width")//9 * 4)
         
-        
-        
-    def create_matrix_input(self,dim_input,x_offset=0):
+        self.calculate_button = ctk.CTkButton(self, width=80, height=40, fg_color="grey30", hover_color="grey70", command=self.calculate_mult)
+        self.calculate_button.grid(row=1, column=0, columnspan=3)
+    def calculate_mult(self):
+        pass
+
+    def create_matrix_input(self,frame,dim_input):
         try:
             rows = int(dim_input[0])
             columns = int(dim_input[1])
@@ -137,11 +155,17 @@ class Matrix_input_Frame(ctk.CTkFrame):
         matrix_input = []
         for i in range(rows):
             row_entries = []
+            #frame.grid_rowconfigure(i, weight=1)
             for j in range(columns):
-                entry = ctk.CTkEntry(self, width=20)
-                entry.grid(row=i,column=j+x_offset, sticky = "nsew")
+                entry = ctk.CTkEntry(frame, width=50)
+                entry.grid(row=i,column=j)
+                #frame.grid_columnconfigure(j, weight=1)
                 row_entries.append(entry)
             matrix_input.append(row_entries)
+        for i in range(rows):
+            frame.grid_rowconfigure(i, weight=1)
+        for i in range(columns):
+            frame.grid_columnconfigure(i, weight=1)
         return matrix_input
     
 def main():
