@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import *
 import os
 import customtkinter as ctk
 from PIL import Image
@@ -75,28 +76,24 @@ class Matrix_Frame(ctk.CTkFrame):
         self.grid_columnconfigure(0,weight=1)
 
     
-    def select_input_frame(self,dim_m1, dim_m2):
+    def select_input_frame(self,dim_m1 = 0, dim_m2 = 0):
         self.matrix_input_Frame = Matrix_input_Frame(self, dim_m1, dim_m2)
         self.matrix_dimension_Frame.grid_forget()
         self.matrix_input_Frame.grid(row=0, column=0, sticky="nsew")
 
 class Matrix_dimension_Frame(ctk.CTkFrame):
-    def __init__(self,master):
+    def __init__(self ,master:Matrix_Frame):
         super().__init__(master)
         self.master = master
         
         self.configure( fg_color = "transparent")
 
-        self.row1=""
-        self.column1=""
-        self.row2=""
-        self.column2=""
-        self.matrix1_rows = ctk.CTkEntry(master=self,textvariable=self.row1,height=30,placeholder_text="Rows M1")
-        self.matrix1_columns = ctk.CTkEntry(master=self,textvariable=self.column1,height=30,placeholder_text="Columns M1")
-        self.matrix2_rows = ctk.CTkEntry(master=self,textvariable=self.row2,height=30,placeholder_text="Rows M2")
-        self.matrix2_columns = ctk.CTkEntry(master=self,textvariable=self.column2,height=30,placeholder_text="Columns M2")
-        self.rowconfigure(1,weight=1)
-        self.columnconfigure(1,weight=1)
+        self.matrix1_rows = ctk.CTkEntry(master=self,height=30,placeholder_text="Rows M1")
+        self.matrix1_columns = ctk.CTkEntry(master=self,height=30,placeholder_text="Columns M1")
+        self.matrix2_rows = ctk.CTkEntry(master=self,height=30,placeholder_text="Rows M2")
+        self.matrix2_columns = ctk.CTkEntry(master=self,height=30,placeholder_text="Columns M2")
+        self.grid_rowconfigure(1,weight=1)
+        self.grid_columnconfigure(1,weight=1)
         self.matrix1_rows.grid(row=0,column=0 , padx = 20 , pady = 20, sticky = "wn")
         self.matrix1_columns.grid(row=0,column=1 , padx = 20 , pady = 20, sticky = "wn")
         self.matrix2_rows.grid(row=1,column=0 , padx = 20 , pady = 20, sticky = "wn")
@@ -105,9 +102,30 @@ class Matrix_dimension_Frame(ctk.CTkFrame):
         self.select_button = ctk.CTkButton(master = self, height = 30, fg_color = "transparent", text= "Select Dim",hover_color=("gray70","gray30"), command=self.select_input_Frame)
         self.select_button.grid(row=2, column=0, columnspan=2, sticky="nsew")
     def select_input_Frame(self):
-        dim_m1 = (int(self.matrix1_rows.get()),int( self.matrix1_columns.get()))
-        dim_m2 = (int(self.matrix2_rows.get()), int(self.matrix2_columns.get()))
-        self.master.select_input_frame(dim_m1, dim_m2)
+        try:
+            dim_m1 = (int(self.matrix1_rows.get()),int( self.matrix1_columns.get()))
+            dim_m2 = (int(self.matrix2_rows.get()), int(self.matrix2_columns.get()))
+
+            if dim_m1[1] == dim_m2[0]:
+                self.master.select_input_frame(dim_m1, dim_m2)
+            else:
+                self.pop_message = ctk.CTkToplevel(self.master)
+                self.pop_message.title("Popup")
+                self.pop_message.geometry("300x300")
+                pop_Label = ctk.CTkLabel(self.pop_message ,text="You choose wrong dimensions for matrices!")
+                pop_Label.grid(row=0 ,column=0)
+                self.matrix1_columns.delete(0 ,END)
+                self.matrix1_rows.delete(0 ,END)
+                self.matrix2_columns.delete(0 ,END)
+                self.matrix2_rows.delete(0 ,END)
+                self.pop_message.focus_set()
+        except ValueError:
+            raise Exception("Only numbers are valid input")
+
+
+
+
+        
 
     
 class Matrix_input_Frame(ctk.CTkFrame):
@@ -142,16 +160,36 @@ class Matrix_input_Frame(ctk.CTkFrame):
         
         self.calculate_button = ctk.CTkButton(self, width=80, height=40, fg_color="grey30", hover_color="grey70", command=self.calculate_mult)
         self.calculate_button.grid(row=1, column=0, columnspan=3)
-    def calculate_mult(self):
-        pass
 
-    def create_matrix_input(self,frame,dim_input):
+    def calculate_mult(self, matrix1, matrix2):
+        result = []
+
+        # Check if dimensions are compatible for matrix multiplication
+        if len(matrix1[0]) != len(matrix2):
+            raise Exception^("Wrong dimension of the matrices, not multipliable!")
+
+        # Perform matrix multiplication
+        for i in range(len(matrix1)):
+            row = []
+            for j in range(len(matrix2[0])):
+                element = 0
+                for k in range(len(matrix2)):
+                    if isinstance(matrix1[i][k], str) or isinstance(matrix2[k][j], str):
+                        # If an element is a variable, leave it as it is
+                        element += str(matrix1[i][k]) + "*" + str(matrix2[k][j]) + " "
+                    else:
+                        element += matrix1[i][k] * matrix2[k][j]
+                row.append(element)
+            result.append(row)
+
+        return result
+
+    def create_matrix_input(self ,frame:ctk.CTkFrame ,dim_input):
         try:
             rows = int(dim_input[0])
             columns = int(dim_input[1])
         except ValueError:
-            #show Error!
-            return
+            raise Exception("Not a number, not a valid input")
         matrix_input = []
         for i in range(rows):
             row_entries = []
